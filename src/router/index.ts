@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from '@ionic/vue-router';
 import { RouteRecordRaw } from 'vue-router';
-import HomePage from '../views/HomePage.vue'
+import HomePage from '../views/HomePage.vue';
+import Bizdash from '@/views/biz/bizdash.vue';
+import Devdash from '@/views/dev/devdash.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -11,6 +13,16 @@ const routes: Array<RouteRecordRaw> = [
     path: '/home',
     name: 'Home',
     component: HomePage
+  },
+  {
+    path: '/biz',
+    name: 'Bizdash',
+    component: Bizdash
+  },
+  {
+    path: '/dev',
+    name: 'Devdash',
+    component: Devdash
   }
 ]
 
@@ -19,4 +31,4 @@ const router = createRouter({
   routes
 })
 
-export default router
+export default router;
