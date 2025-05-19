@@ -1,11 +1,24 @@
 <template>
-  <div>
-    <ion-header translucent>
+  <ion-page>
+    <ion-header translucent class="ion-no-border">
       <ion-toolbar color="dark">
-        <ion-title color="primary">Business Analytics</ion-title>
+        <ion-buttons slot="start">
+          <ion-back-button default-href="/home" text="Home"></ion-back-button>
+        </ion-buttons>
+        <ion-title>
+          <div class="title-container">
+            <div class="title-icon">
+              <ion-icon :icon="analyticsOutline" color="primary"></ion-icon>
+            </div>
+            <div class="title-text">Business Analytics</div>
+          </div>
+        </ion-title>
         <ion-buttons slot="end">
+          <ion-button class="refresh-button" @click="refreshData">
+            <ion-icon :icon="refreshOutline"></ion-icon>
+          </ion-button>
           <ion-segment 
-            value="business" 
+            :value="currentRoute" 
             color="primary"
             @ionChange="handleTabChange">
             <ion-segment-button value="biz">
@@ -17,426 +30,464 @@
           </ion-segment>
         </ion-buttons>
       </ion-toolbar>
+      
+      <!-- Dashboard summary stats -->
+      <div class="stats-container">
+        <div class="stat-item">
+          <div class="stat-value">$1.2M</div>
+          <div class="stat-label">Revenue</div>
+          <div class="stat-change positive">
+            <ion-icon :icon="trendingUpOutline"></ion-icon> 12%
+          </div>
+        </div>
+        
+        <div class="stat-item">
+          <div class="stat-value">2,450</div>
+          <div class="stat-label">Customers</div>
+          <div class="stat-change positive">
+            <ion-icon :icon="trendingUpOutline"></ion-icon> 8%
+          </div>
+        </div>
+        
+        <div class="stat-item">
+          <div class="stat-value">$490</div>
+          <div class="stat-label">Avg. Order</div>
+          <div class="stat-change positive">
+            <ion-icon :icon="trendingUpOutline"></ion-icon> 5%
+          </div>
+        </div>
+        
+        <div class="stat-item">
+          <div class="stat-value">18%</div>
+          <div class="stat-label">Profit Margin</div>
+          <div class="stat-change negative">
+            <ion-icon :icon="trendingDownOutline"></ion-icon> 2%
+          </div>
+        </div>
+      </div>
     </ion-header>
     
-    <!-- dashboard -->
-    <ion-grid>
-      <ion-row>
-        <!-- Chart 1: Sales ad revenue (Chart.js) -->
-        <ion-col size="12" size-md="6" size-lg="4">
-          <ion-card color="medium">
-            <ion-card-header>
-              <ion-card-title>
-                <ion-label color="primary">Sales ad revenue</ion-label>
-              </ion-card-title>
-            </ion-card-header>
-            <ion-card-content>
-              <canvas ref="adRevenueChart"></canvas>
-            </ion-card-content>
-          </ion-card>
-        </ion-col>
-        
-        <!-- Chart 2: Customer growth (ApexCharts) -->
-        <ion-col size="12" size-md="6" size-lg="4">
-          <ion-card color="medium">
-            <ion-card-header>
-              <ion-card-title>
-                <ion-label color="primary">Customer growth</ion-label>
-              </ion-card-title>
-            </ion-card-header>
-            <ion-card-content>
-              <div ref="customerGrowthChart"></div>
-            </ion-card-content>
-          </ion-card>
-        </ion-col>
-        
-        <!-- Chart 3: Sales conversion (SVG Custom) -->
-        <ion-col size="12" size-md="6" size-lg="4">
-          <ion-card color="medium">
-            <ion-card-header>
-              <ion-card-title>
-                <ion-label color="primary">Sales conversion</ion-label>
-              </ion-card-title>
-            </ion-card-header>
-            <ion-card-content>
-              <div class="custom-pie-chart">
-                <svg width="100%" height="200" viewBox="0 0 200 200">
-                  <path 
-                    d="M100,100 L100,0 A100,100 0 0,1 180,50 Z" 
-                    fill="#06b6d4"
-                  />
-                  <path 
-                    d="M100,100 L180,50 A100,100 0 0,1 100,200 Z" 
-                    fill="#0ea5e9"
-                  />
-                  <path 
-                    d="M100,100 L100,200 A100,100 0 0,1 20,150 Z" 
-                    fill="#0284c7"
-                  />
-                  <path 
-                    d="M100,100 L20,150 A100,100 0 0,1 100,0 Z" 
-                    fill="#0369a1"
-                  />
-                  <circle cx="100" cy="100" r="70" fill="#1e1e1e" />
-                  <text x="100" y="100" text-anchor="middle" fill="white" font-size="20">
-                    78%
-                  </text>
-                </svg>
-                <div class="legend">
-                  <div><span style="color: #06b6d4">■</span> Leads (35%)</div>
-                  <div><span style="color: #0ea5e9">■</span> Prospectos (25%)</div>
-                  <div><span style="color: #0284c7">■</span> Clientes (15%)</div>
-                  <div><span style="color: #0369a1">■</span> Recurrentes (25%)</div>
+    <ion-content color="dark" fullscreen>
+      <ion-grid class="main-grid">
+        <ion-row class="main-row">
+          <!-- Revenue Overview -->
+          <ion-col size="12" size-md="6" size-lg="4" class="chart-col">
+            <div class="chart-card">
+              <div class="chart-header">
+                <div class="chart-title">
+                  <ion-icon :icon="barChartOutline" color="primary"></ion-icon>
+                  <div>
+                    <h3>Revenue Overview</h3>
+                    <span>Last 6 months</span>
+                  </div>
+                </div>
+                <ion-button fill="clear" size="small" class="chart-options-btn">
+                  <ion-icon :icon="ellipsisHorizontalOutline"></ion-icon>
+                </ion-button>
+              </div>
+              <div class="chart-content">
+                <div class="chart-wrapper">
+                  <ChartJsBar />
                 </div>
               </div>
-            </ion-card-content>
-          </ion-card>
-        </ion-col>
-        
-        <!-- Chart 4: Market share (ECharts) -->
-        <ion-col size="12" size-md="6" size-lg="4">
-          <ion-card color="medium">
-            <ion-card-header>
-              <ion-card-title>
-                <ion-label color="primary">Market share</ion-label>
-              </ion-card-title>
-            </ion-card-header>
-            <ion-card-content>
-              <div ref="marketShareChart" style="width: 100%; height: 300px;"></div>
-            </ion-card-content>
-          </ion-card>
-        </ion-col>
-        
-        <!-- Chart 5: Stock simulation (Real-time) -->
-        <ion-col size="12" size-md="6" size-lg="4">
-          <ion-card color="medium">
-            <ion-card-header>
-              <ion-card-title>
-                <ion-label color="primary">Stock simulation (real-time)</ion-label>
-              </ion-card-title>
-            </ion-card-header>
-            <ion-card-content>
-              <canvas ref="stockChart"></canvas>
-            </ion-card-content>
-          </ion-card>
-        </ion-col>
-      </ion-row>
-    </ion-grid>
-  </div>
+            </div>
+          </ion-col>
+          
+          <!-- Customer Growth -->
+          <ion-col size="12" size-md="6" size-lg="4" class="chart-col">
+            <div class="chart-card">
+              <div class="chart-header">
+                <div class="chart-title">
+                  <ion-icon :icon="peopleOutline" color="primary"></ion-icon>
+                  <div>
+                    <h3>Customer Growth</h3>
+                    <span>Quarterly progression</span>
+                  </div>
+                </div>
+                <ion-button fill="clear" size="small" class="chart-options-btn">
+                  <ion-icon :icon="ellipsisHorizontalOutline"></ion-icon>
+                </ion-button>
+              </div>
+              <div class="chart-content">
+                <div class="chart-wrapper">
+                  <ApexAreaChart />
+                </div>
+              </div>
+            </div>
+          </ion-col>
+          
+          <!-- Revenue Distribution -->
+          <ion-col size="12" size-md="6" size-lg="4" class="chart-col">
+            <div class="chart-card">
+              <div class="chart-header">
+                <div class="chart-title">
+                  <ion-icon :icon="pieChartOutline" color="primary"></ion-icon>
+                  <div>
+                    <h3>Revenue Distribution</h3>
+                    <span>By product category</span>
+                  </div>
+                </div>
+                <ion-button fill="clear" size="small" class="chart-options-btn">
+                  <ion-icon :icon="ellipsisHorizontalOutline"></ion-icon>
+                </ion-button>
+              </div>
+              <div class="chart-content">
+                <div class="chart-wrapper">
+                  <CustomPieChart />
+                </div>
+              </div>
+            </div>
+          </ion-col>
+          
+          <!-- Market Analysis -->
+          <ion-col size="12" size-md="6" size-lg="6" class="chart-col">
+            <div class="chart-card">
+              <div class="chart-header">
+                <div class="chart-title">
+                  <ion-icon :icon="globeOutline" color="primary"></ion-icon>
+                  <div>
+                    <h3>Market Analysis</h3>
+                    <span>Regional performance</span>
+                  </div>
+                </div>
+                <ion-button fill="clear" size="small" class="chart-options-btn">
+                  <ion-icon :icon="ellipsisHorizontalOutline"></ion-icon>
+                </ion-button>
+              </div>
+              <div class="chart-content">
+                <div class="chart-wrapper">
+                  <EChartsRadar />
+                </div>
+              </div>
+            </div>
+          </ion-col>
+          
+          <!-- Stock Performance -->
+          <ion-col size="12" size-md="6" size-lg="6" class="chart-col">
+            <div class="chart-card">
+              <div class="chart-header">
+                <div class="chart-title">
+                  <ion-icon :icon="trendingUpOutline" color="primary"></ion-icon>
+                  <div>
+                    <h3>Stock Performance</h3>
+                    <span>Real-time simulation</span>
+                  </div>
+                </div>
+                <ion-button fill="clear" size="small" class="chart-options-btn">
+                  <ion-icon :icon="ellipsisHorizontalOutline"></ion-icon>
+                </ion-button>
+              </div>
+              <div class="chart-content">
+                <div class="chart-wrapper">
+                  <RealtimeStockChart />
+                </div>
+              </div>
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-content>
+    
+    <!-- Floating action button -->
+    <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+      <ion-fab-button color="primary">
+        <ion-icon :icon="addOutline"></ion-icon>
+      </ion-fab-button>
+      <ion-fab-list side="top">
+        <ion-fab-button color="dark">
+          <ion-icon :icon="downloadOutline"></ion-icon>
+        </ion-fab-button>
+        <ion-fab-button color="dark">
+          <ion-icon :icon="shareOutline"></ion-icon>
+        </ion-fab-button>
+        <ion-fab-button color="dark">
+          <ion-icon :icon="printOutline"></ion-icon>
+        </ion-fab-button>
+      </ion-fab-list>
+    </ion-fab>
+  </ion-page>
 </template>
 
-<script>
-import { defineComponent, ref, onMounted, onUnmounted } from 'vue';
-import { useRouter } from 'vue-router';
+<script setup lang="ts">
+import { ref, watch, onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { 
-  IonGrid, 
-  IonRow, 
-  IonCol, 
-  IonCard, 
-  IonCardHeader, 
-  IonCardTitle, 
-  IonCardContent,
-  IonLabel,
-  IonIcon,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonButtons,
-  IonSegment,
-  IonSegmentButton,
-  IonBackButton
+  IonPage, IonHeader, IonToolbar, IonTitle, IonContent,
+  IonButtons, IonSegment, IonSegmentButton, IonLabel,
+  IonBackButton, IonGrid, IonRow, IonCol, IonButton,
+  IonIcon, IonFab, IonFabButton, IonFabList
 } from '@ionic/vue';
 import { 
-  barChartOutline as barChart, 
-  trendingUpOutline as trendingUp, 
-  pieChartOutline as pieChart,
-  analyticsOutline as analytics,
-  statsChartOutline as statsChart
+  analyticsOutline, refreshOutline, trendingUpOutline, 
+  trendingDownOutline, barChartOutline, peopleOutline, 
+  pieChartOutline, globeOutline, ellipsisHorizontalOutline,
+  addOutline, downloadOutline, shareOutline, printOutline
 } from 'ionicons/icons';
-import { Chart, registerables } from 'chart.js';
-import ApexCharts from 'apexcharts';
-import * as echarts from 'echarts';
 
-export default defineComponent({
-  name: 'BusinessAnalytics',
-  components: {
-    IonGrid, 
-    IonRow, 
-    IonCol, 
-    IonCard, 
-    IonCardHeader, 
-    IonCardTitle, 
-    IonCardContent,
-    IonLabel,
-    IonIcon,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
-    IonButtons,
-    IonSegment,
-    IonSegmentButton,
-    IonBackButton
-  },
-  setup() {
-    const router = useRouter();
-    const adRevenueChart = ref(null);
-    const customerGrowthChart = ref(null);
-    const marketShareChart = ref(null);
-    const stockChart = ref(null);
-    let stockIntervalId = null;
-    let chartInstances = {
-      adRevenue: null,
-      customerGrowth: null,
-      marketShare: null,
-      stock: null
-    };
+import ChartJsBar from '@/components/ChartJsBar.vue';
+import ApexAreaChart from '@/components/ApexAreaChart.vue';
+import CustomPieChart from '@/components/CustomPieChart.vue';
+import EChartsRadar from '@/components/EChartsRadar.vue';
+import RealtimeStockChart from '@/components/RealtimeStockChart.vue';
 
-    const handleTabChange = (e) => {
-      router.push(`/${e.detail.value}`);
-    };
+const router = useRouter();
+const route = useRoute();
+const currentRoute = ref(route.path.split('/')[1] || 'biz');
 
-    // Initialize all charts
-    const initCharts = () => {
-      // Chart 1: Ad Revenue (Chart.js)
-      Chart.register(...registerables);
-      chartInstances.adRevenue = new Chart(adRevenueChart.value, {
-        type: 'bar',
-        data: {
-          labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
-          datasets: [{
-            label: 'Ingresos por publicidad ($)',
-            data: [12500, 19000, 22000, 28000, 32500, 40000],
-            backgroundColor: '#06b6d4',
-            borderColor: '#06b6d4',
-            borderWidth: 1
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: {
-              position: 'top',
-            }
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              ticks: {
-                callback: function(value) {
-                  return '$' + value.toLocaleString();
-                }
-              }
-            }
-          }
-        }
-      });
-
-      // Chart 2: Customer Growth (ApexCharts)
-      const customerGrowthOptions = {
-        series: [{
-          name: 'Usuarios activos',
-          data: [4500, 6200, 7800, 9500, 11500, 14200, 17000]
-        }],
-        chart: {
-          type: 'area',
-          height: 350,
-          toolbar: {
-            show: false
-          }
-        },
-        colors: ['#06b6d4'],
-        dataLabels: {
-          enabled: false
-        },
-        stroke: {
-          curve: 'smooth'
-        },
-        xaxis: {
-          categories: ['Q1 2022', 'Q2 2022', 'Q3 2022', 'Q4 2022', 'Q1 2023', 'Q2 2023', 'Q3 2023'],
-        },
-        tooltip: {
-          y: {
-            formatter: function (val) {
-              return val.toLocaleString() + " usuarios";
-            }
-          }
-        }
-      };
-      chartInstances.customerGrowth = new ApexCharts(customerGrowthChart.value, customerGrowthOptions);
-      chartInstances.customerGrowth.render();
-
-      // Chart 4: Market Share (ECharts)
-      chartInstances.marketShare = echarts.init(marketShareChart.value);
-      const marketShareOptions = {
-        color: ['#06b6d4'],
-        radar: {
-          indicator: [
-            { name: 'EE.UU.', max: 100 },
-            { name: 'Europa', max: 100 },
-            { name: 'Asia', max: 100 },
-            { name: 'LatAm', max: 100 },
-            { name: 'África', max: 100 },
-            { name: 'Oceanía', max: 100 }
-          ],
-          radius: '65%',
-          splitNumber: 4
-        },
-        series: [{
-          type: 'radar',
-          data: [{
-            value: [85, 72, 65, 45, 30, 55],
-            name: 'Nuestra plataforma',
-            areaStyle: {
-              color: 'rgba(6, 182, 212, 0.4)'
-            }
-          }]
-        }],
-        tooltip: {
-          trigger: 'item'
-        }
-      };
-      chartInstances.marketShare.setOption(marketShareOptions);
-
-      // Chart 5: Stock Simulation (Real-time Chart.js)
-      const initialDataPoints = Array(30).fill(100);
-      chartInstances.stock = new Chart(stockChart.value, {
-        type: 'line',
-        data: {
-          labels: Array(30).fill(''),
-          datasets: [{
-            label: 'Valor de la acción ($)',
-            data: initialDataPoints,
-            borderColor: '#06b6d4',
-            backgroundColor: 'rgba(6, 182, 212, 0.1)',
-            borderWidth: 2,
-            pointRadius: 0,
-            fill: true,
-            tension: 0.4
-          }]
-        },
-        options: {
-          responsive: true,
-          animation: {
-            duration: 0
-          },
-          scales: {
-            y: {
-              min: 50,
-              max: 150
-            }
-          },
-          plugins: {
-            legend: {
-              display: false
-            }
-          }
-        }
-      });
-
-      // Real-time data simulation for stock chart
-      stockIntervalId = setInterval(() => {
-        const lastValue = chartInstances.stock.data.datasets[0].data[chartInstances.stock.data.datasets[0].data.length - 1];
-        const change = (Math.random() - 0.5) * 10;
-        const newValue = Math.max(50, Math.min(150, lastValue + change));
-        
-        chartInstances.stock.data.datasets[0].data.shift();
-        chartInstances.stock.data.datasets[0].data.push(newValue);
-        chartInstances.stock.update();
-      }, 1000);
-    };
-
-    // Cleanup charts on unmount
-    const cleanupCharts = () => {
-      if (chartInstances.adRevenue) chartInstances.adRevenue.destroy();
-      if (chartInstances.customerGrowth) chartInstances.customerGrowth.destroy();
-      if (chartInstances.marketShare) chartInstances.marketShare.dispose();
-      if (chartInstances.stock) chartInstances.stock.destroy();
-      if (stockIntervalId) clearInterval(stockIntervalId);
-    };
-
-    onMounted(() => {
-      initCharts();
-      window.addEventListener('resize', () => {
-        if (chartInstances.marketShare) chartInstances.marketShare.resize();
-      });
-    });
-
-    onUnmounted(() => {
-      cleanupCharts();
-      window.removeEventListener('resize', () => {
-        if (chartInstances.marketShare) chartInstances.marketShare.resize();
-      });
-    });
-
-    return {
-      barChart,
-      trendingUp,
-      pieChart,
-      analytics,
-      statsChart,
-      handleTabChange,
-      adRevenueChart,
-      customerGrowthChart,
-      marketShareChart,
-      stockChart
-    };
+const handleTabChange = (e: CustomEvent) => {
+  const newRoute = e.detail.value;
+  if (newRoute !== currentRoute.value) {
+    router.push(`/${newRoute}`);
   }
+};
+
+const refreshData = () => {
+  // Implement data refresh logic
+  console.log('Refreshing data...');
+};
+
+onMounted(() => {
+  watch(() => route.path, (newPath) => {
+    const routeName = newPath.split('/')[1];
+    if (routeName === 'biz' || routeName === 'dev') {
+      currentRoute.value = routeName;
+    }
+  });
 });
 </script>
 
 <style scoped>
-.chart-placeholder {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 180px;
-  background-color: var(--ion-color-dark);
-  border-radius: 8px;
-}
-
-ion-icon {
-  font-size: 48px;
-}
-
-ion-card {
-  --background: #1e1e1e;
-  --color: white;
-  margin-bottom: 16px;
-}
-
+/* Header Styles */
 ion-header {
-  position: sticky;
-  top: 0;
-  z-index: 100;
+  box-shadow: none;
 }
 
 ion-toolbar {
-  --background: #121212;
+  --background: #000000;
   --color: white;
+  padding: 0 8px;
+}
+
+.title-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.title-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+
+.title-text {
+  font-weight: 600;
+  color: var(--ion-color-primary);
+  font-size: 1.1rem;
+}
+
+.refresh-button {
+  margin-right: 8px;
+  --padding-start: 8px;
+  --padding-end: 8px;
 }
 
 ion-segment {
   --background: transparent;
+  padding: 0;
 }
 
 ion-segment-button {
   --color: #06b6d4;
   --color-checked: #ffffff;
   --background-checked: #06b6d4;
+  --padding-start: 8px;
+  --padding-end: 8px;
+  min-width: 90px;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
-.custom-pie-chart {
+/* Stats Bar */
+.stats-container {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 8px 16px;
+  background: linear-gradient(to right, var(--color-gradient-start), var(--color-gradient-end));
+  border-bottom: 1px solid rgba(6, 182, 212, 0.1);
+}
+
+.stat-item {
+  flex: 1;
+  min-width: 100px;
+  padding: 8px;
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: white;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 2px;
+}
+
+.stat-change {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  margin-top: 4px;
+  gap: 2px;
+}
+
+.stat-change.positive {
+  color: #4ade80;
+}
+
+.stat-change.negative {
+  color: #f87171;
+}
+
+/* Grid Layout */
+.main-grid {
+  padding: 16px;
+}
+
+.chart-col {
+  padding: 8px;
+}
+
+/* Chart Card Styles */
+.chart-card {
+  background-color: var(--color-card-bg);
+  border-radius: 12px;
+  overflow: hidden;
+  height: 100%;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--color-card-border);
   display: flex;
   flex-direction: column;
-  align-items: center;
+  transition: all 0.3s ease;
 }
 
-.legend {
-  margin-top: 20px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  color: white;
-  font-size: 12px;
+.chart-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+  border-color: rgba(6, 182, 212, 0.4);
+}
+
+.chart-header {
+  background-color: var(--color-card-header);
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.chart-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.chart-title ion-icon {
+  font-size: 1.4rem;
+}
+
+.chart-title h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ion-color-primary);
+}
+
+.chart-title span {
+  display: block;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 2px;
+}
+
+.chart-options-btn {
+  --color: rgba(255, 255, 255, 0.7);
+  --padding-start: 4px;
+  --padding-end: 4px;
+  height: 30px;
+}
+
+.chart-content {
+  flex: 1;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chart-wrapper {
+  width: 100%;
+  height: 100%;
+  min-height: 250px;
+}
+
+/* Floating Action Button */
+ion-fab-button {
+  --box-shadow: 0 4px 12px rgba(6, 182, 212, 0.4);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .stats-container {
+    padding: 4px 8px;
+  }
+  
+  .stat-item {
+    padding: 4px;
+  }
+  
+  .stat-value {
+    font-size: 1.2rem;
+  }
+  
+  .main-grid {
+    padding: 8px;
+  }
+  
+  .chart-header {
+    padding: 12px;
+  }
+  
+  .chart-content {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 576px) {
+  .stats-container {
+    flex-wrap: wrap;
+  }
+  
+  .stat-item {
+    min-width: 50%;
+    padding: 4px;
+  }
+  
+  .chart-title h3 {
+    font-size: 0.9rem;
+  }
+  
+  .chart-title span {
+    font-size: 0.7rem;
+  }
+  
+  .chart-title ion-icon {
+    font-size: 1.2rem;
+  }
 }
 </style>

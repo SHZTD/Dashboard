@@ -16,12 +16,12 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     path: '/biz',
-    name: 'Bizdash',
+    name: 'Biz',
     component: Bizdash
   },
   {
     path: '/dev',
-    name: 'Devdash',
+    name: 'Dev',
     component: Devdash
   }
 ]
