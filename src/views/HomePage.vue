@@ -52,9 +52,25 @@
               </div>
             </div>
           </div>
-          
+
+          <div class="buttons-grid">
+            <div class="dashboard-button-container" @click="navigateTo('/kpi')">
+              <div class="dashboard-button business">
+                <div class="button-icon">
+                  <ion-icon :icon="businessOutline"></ion-icon>
+                </div>
+                <div class="button-content">
+                  <h2>KPI</h2>
+                  <p>Key performance indicator</p>
+                </div>
+                <div class="button-arrow">
+                  <ion-icon :icon="chevronForwardOutline"></ion-icon>
+                </div>
+              </div>
+            </div>
+          </div>
           <div class="footer-text">
-            <p>© 2023 BlueShare Analytics</p>
+            <p>© SHZTD - Thomas 2025</p>
           </div>
         </div>
       </div>

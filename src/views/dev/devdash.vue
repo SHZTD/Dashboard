@@ -68,11 +68,11 @@
       </div>
     </ion-header>
     
-    <ion-content color="dark" fullscreen>
+    <ion-content color="dark" fullscreen :scroll="false">
       <ion-grid class="main-grid">
         <ion-row class="main-row">
-          <!-- Code Quality Metrics -->
-          <ion-col size="12" size-md="6" size-lg="4" class="chart-col">
+          <!-- First row: 3 charts -->
+          <ion-col size="12" size-md="4" size-lg="4" class="chart-col">
             <div class="chart-card">
               <div class="chart-header">
                 <div class="chart-title">
@@ -94,8 +94,7 @@
             </div>
           </ion-col>
           
-          <!-- Commit Activity -->
-          <ion-col size="12" size-md="6" size-lg="4" class="chart-col">
+          <ion-col size="12" size-md="4" size-lg="4" class="chart-col">
             <div class="chart-card">
               <div class="chart-header">
                 <div class="chart-title">
@@ -117,8 +116,7 @@
             </div>
           </ion-col>
           
-          <!-- Build Performance -->
-          <ion-col size="12" size-md="6" size-lg="4" class="chart-col">
+          <ion-col size="12" size-md="4" size-lg="4" class="chart-col">
             <div class="chart-card">
               <div class="chart-header">
                 <div class="chart-title">
@@ -140,7 +138,7 @@
             </div>
           </ion-col>
           
-          <!-- Code Coverage -->
+          <!-- Second row: 2 charts -->
           <ion-col size="12" size-md="6" size-lg="6" class="chart-col">
             <div class="chart-card">
               <div class="chart-header">
@@ -163,7 +161,6 @@
             </div>
           </ion-col>
           
-          <!-- API Performance -->
           <ion-col size="12" size-md="6" size-lg="6" class="chart-col">
             <div class="chart-card">
               <div class="chart-header">
@@ -242,6 +239,13 @@ onMounted(() => {
   }
 });
 
+watch(() => route.path, (newPath) => {
+  const routeName = newPath.split('/')[1];
+  if (routeName === 'biz' || routeName === 'dev') {
+    currentRoute.value = routeName;
+  }
+});
+
 const handleTabChange = (e: CustomEvent) => {
   const newRoute = e.detail.value;
   if (newRoute !== currentRoute.value) {
@@ -253,13 +257,6 @@ const refreshData = () => {
   // Implement data refresh logic
   console.log('Refreshing data...');
 };
-
-watch(() => route.path, (newPath) => {
-  const routeName = newPath.split('/')[1];
-  if (routeName === 'biz' || routeName === 'dev') {
-    currentRoute.value = routeName;
-  }
-});
 </script>
 
 <style scoped>
@@ -270,7 +267,7 @@ ion-header {
 
 ion-toolbar {
   --background: #000000;
-  --color: white;
+  --color: rgb(0, 0, 0);
   padding: 0 8px;
 }
 
@@ -306,7 +303,7 @@ ion-segment {
 
 ion-segment-button {
   --color: #06b6d4;
-  --color-checked: #ffffff;
+  --color-checked: #000000;
   --background-checked: #06b6d4;
   --padding-start: 8px;
   --padding-end: 8px;
@@ -319,26 +316,26 @@ ion-segment-button {
 .stats-container {
   display: flex;
   flex-wrap: wrap;
-  padding: 8px 16px;
-  background: linear-gradient(to right, var(--color-gradient-start), var(--color-gradient-end));
-  border-bottom: 1px solid rgba(6, 182, 212, 0.1);
+  padding: 4px 16px;
+  background: linear-gradient(to right, rgb(44, 0, 255), rgb(0, 176, 255));
+  border-bottom: 1px solid rgb(47, 0, 255);
 }
 
 .stat-item {
   flex: 1;
   min-width: 100px;
-  padding: 8px;
+  padding: 4px;
   text-align: center;
 }
 
 .stat-value {
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   font-weight: 700;
-  color: white;
+  color: rgb(255, 255, 255);
 }
 
 .stat-label {
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   color: rgba(255, 255, 255, 0.6);
   margin-top: 2px;
 }
@@ -347,8 +344,8 @@ ion-segment-button {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.8rem;
-  margin-top: 4px;
+  font-size: 0.7rem;
+  margin-top: 2px;
   gap: 2px;
 }
 
@@ -362,11 +359,21 @@ ion-segment-button {
 
 /* Grid Layout */
 .main-grid {
-  padding: 16px;
+  padding: 8px;
+  height: calc(100% - 16px);
+  max-height: calc(100vh - 140px); /* Adjust based on header height */
+}
+
+.main-row {
+  height: 100%;
+  display: flex;
+  flex-wrap: wrap;
 }
 
 .chart-col {
-  padding: 8px;
+  padding: 4px;
+  height: 50%;
+  display: flex;
 }
 
 /* Chart Card Styles */
@@ -375,6 +382,7 @@ ion-segment-button {
   border-radius: 12px;
   overflow: hidden;
   height: 100%;
+  width: 100%;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   border: 1px solid var(--color-card-border);
   display: flex;
@@ -383,14 +391,14 @@ ion-segment-button {
 }
 
 .chart-card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-2px);
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
   border-color: rgba(6, 182, 212, 0.4);
 }
 
 .chart-header {
   background-color: var(--color-card-header);
-  padding: 16px;
+  padding: 8px 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -400,23 +408,23 @@ ion-segment-button {
 .chart-title {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
 }
 
 .chart-title ion-icon {
-  font-size: 1.4rem;
+  font-size: 1.2rem;
 }
 
 .chart-title h3 {
   margin: 0;
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 600;
   color: var(--ion-color-primary);
 }
 
 .chart-title span {
   display: block;
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   color: rgba(255, 255, 255, 0.5);
   margin-top: 2px;
 }
@@ -425,21 +433,35 @@ ion-segment-button {
   --color: rgba(255, 255, 255, 0.7);
   --padding-start: 4px;
   --padding-end: 4px;
-  height: 30px;
+  height: 24px;
 }
 
 .chart-content {
   flex: 1;
-  padding: 16px;
+  padding: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  overflow: hidden;
 }
 
 .chart-wrapper {
   width: 100%;
   height: 100%;
-  min-height: 250px;
+  position: relative;
+}
+
+ion-content {
+  --background: #121212;
+  --overflow: hidden;
+}
+
+/* CSS Variables for theming */
+:root {
+  --color-card-bg: #1e1e1e;
+  --color-card-header: #252525;
+  --color-card-border: rgba(255, 255, 255, 0.1);
 }
 
 /* Floating Action Button */
@@ -447,53 +469,67 @@ ion-fab-button {
   --box-shadow: 0 4px 12px rgba(6, 182, 212, 0.4);
 }
 
+/* Fix for chart overflow issues */
+.chart-wrapper > div,
+.chart-wrapper > canvas {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100%;
+  max-height: 100%;
+}
+
 /* Responsive Adjustments */
-@media (max-width: 768px) {
-  .stats-container {
-    padding: 4px 8px;
+@media (min-width: 992px) {
+  .chart-col[size-lg="4"] {
+    height: 50%;
+    max-height: 50%;
   }
   
-  .stat-item {
-    padding: 4px;
-  }
-  
-  .stat-value {
-    font-size: 1.2rem;
-  }
-  
-  .main-grid {
-    padding: 8px;
-  }
-  
-  .chart-header {
-    padding: 12px;
-  }
-  
-  .chart-content {
-    padding: 12px;
+  .chart-col[size-lg="6"] {
+    height: 50%;
+    max-height: 50%;
   }
 }
 
-@media (max-width: 576px) {
+@media (min-width: 768px) and (max-width: 991px) {
+  .chart-col[size-md="4"] {
+    height: 50%;
+    max-height: 50%;
+  }
+  
+  .chart-col[size-md="6"] {
+    height: 50%;
+    max-height: 50%;
+  }
+}
+
+@media (max-width: 767px) {
+  .main-grid {
+    max-height: none;
+    height: auto;
+  }
+  
+  .chart-col {
+    height: 200px;
+    min-height: 200px;
+  }
+  
   .stats-container {
     flex-wrap: wrap;
   }
   
   .stat-item {
     min-width: 50%;
-    padding: 4px;
+    padding: 2px;
   }
   
-  .chart-title h3 {
-    font-size: 0.9rem;
+  ion-segment {
+    max-width: 140px;
   }
   
-  .chart-title span {
-    font-size: 0.7rem;
-  }
-  
-  .chart-title ion-icon {
-    font-size: 1.2rem;
+  ion-segment-button {
+    min-width: 60px;
+    font-size: 0.8rem;
   }
 }
 </style>

@@ -3,6 +3,7 @@ import { RouteRecordRaw } from 'vue-router';
 import HomePage from '../views/HomePage.vue';
 import Bizdash from '@/views/biz/bizdash.vue';
 import Devdash from '@/views/dev/devdash.vue';
+import kpi from '@/views/kpi/kpi.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -23,6 +24,11 @@ const routes: Array<RouteRecordRaw> = [
     path: '/dev',
     name: 'Dev',
     component: Devdash
+  },
+  {
+    path: '/kpi',
+    name: 'Kpi',
+    component: kpi
   }
 ]
 
