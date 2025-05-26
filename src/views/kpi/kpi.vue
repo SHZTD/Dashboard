@@ -72,7 +72,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="chart-content">
+                <div class="chart-content" @click="openSMARTModal('revenue-overview')">
                   <ChartJsBar />
                 </div>
               </div>
@@ -89,7 +89,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="chart-content">
+                <div class="chart-content" @click="openSMARTModal('customer-growth')">
                   <ApexAreaChart />
                 </div>
               </div>
@@ -158,7 +158,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="chart-content">
+                <div class="chart-content" @click="openSMARTModal('code-quality')">
                   <ChartJsRadar />
                 </div>
               </div>
@@ -370,7 +370,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="chart-content">
+                <div class="chart-content" @click="openSMARTModal('code-quality')">
                   <ChartJsRadar />
                 </div>
               </div>
@@ -447,6 +447,61 @@
         </ion-grid>
       </div>
     </ion-content>
+
+    <!-- SMART Goals Modal -->
+    <ion-modal :is-open="smartModalOpen" @didDismiss="smartModalOpen = false">
+      <ion-header>
+        <ion-toolbar color="dark">
+          <ion-title>{{ selectedChart?.title }} - SMART Analysis</ion-title>
+          <ion-buttons slot="end">
+            <ion-button @click="smartModalOpen = false">
+              <ion-icon :icon="closeOutline"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      
+      <ion-content color="dark" class="smart-modal-content" :scroll-y="true">
+        <div class="smart-container" v-if="selectedChart">
+          <div class="smart-header">
+            <div class="smart-icon">
+              <ion-icon :icon="selectedChart.icon" color="primary"></ion-icon>
+            </div>
+            <div class="smart-title">
+              <h2>{{ selectedChart.title }}</h2>
+              <p>{{ selectedChart.description }}</p>
+            </div>
+          </div>
+
+          <div class="smart-goals">
+            <div class="smart-goal" v-for="(goal, index) in selectedChart.smartGoals" :key="index">
+              <div class="goal-letter">{{ goal.letter }}</div>
+              <div class="goal-content">
+                <h3>{{ goal.title }}</h3>
+                <p>{{ goal.description }}</p>
+                <div class="goal-metrics" v-if="goal.metrics">
+                  <div class="metric" v-for="(metric, idx) in goal.metrics" :key="idx">
+                    <span class="metric-label">{{ metric.label }}:</span>
+                    <span class="metric-value" :class="metric.status">{{ metric.value }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="smart-actions">
+            <ion-button expand="block" color="primary" @click="exportSMARTReport">
+              <ion-icon :icon="downloadOutline" slot="start"></ion-icon>
+              Export SMART Report
+            </ion-button>
+            <ion-button expand="block" fill="outline" color="primary" @click="setSMARTReminder">
+              <ion-icon :icon="notificationsOutline" slot="start"></ion-icon>
+              Set Reminder
+            </ion-button>
+          </div>
+        </div>
+      </ion-content>
+    </ion-modal>
   </ion-page>
 </template>
 
@@ -456,13 +511,15 @@ import {
   IonPage, IonHeader, IonToolbar, IonTitle, IonContent,
   IonButtons, IonBackButton, IonButton, IonIcon,
   IonSegment, IonSegmentButton, IonLabel,
-  IonGrid, IonRow, IonCol
+  IonGrid, IonRow, IonCol,
+  IonModal,
 } from '@ionic/vue'
 import { 
   analyticsOutline, refreshOutline, downloadOutline, shareOutline,
   trendingUpOutline, trendingDownOutline, barChartOutline, peopleOutline,
   pieChartOutline, globeOutline, shieldCheckmarkOutline, gitCommitOutline,
-  speedometerOutline, codeOutline, pulseOutline
+  speedometerOutline, codeOutline, pulseOutline,
+  closeOutline, notificationsOutline
 } from 'ionicons/icons'
 
 // Import your chart components
@@ -517,6 +574,197 @@ const exportData = () => {
 
 const shareReport = () => {
   console.log('Sharing KPI report...')
+}
+
+const smartModalOpen = ref(false)
+const selectedChart = ref(null)
+
+const chartData = {
+  'revenue-overview': {
+    title: 'Revenue Overview',
+    description: 'Track monthly recurring revenue growth',
+    icon: barChartOutline,
+    smartGoals: [
+      {
+        letter: 'S',
+        title: 'Specific',
+        description: 'Increase monthly recurring revenue by focusing on enterprise clients and premium subscriptions.',
+        metrics: [
+          { label: 'Target Segment', value: 'Enterprise (>$10K ARR)', status: 'good' },
+          { label: 'Product Focus', value: 'Premium Plans', status: 'good' }
+        ]
+      },
+      {
+        letter: 'M',
+        title: 'Measurable',
+        description: 'Track revenue metrics with clear KPIs and benchmarks.',
+        metrics: [
+          { label: 'Current MRR', value: '$1.2M', status: 'good' },
+          { label: 'Growth Rate', value: '+12% MoM', status: 'excellent' },
+          { label: 'Target MRR', value: '$1.5M', status: 'pending' }
+        ]
+      },
+      {
+        letter: 'A',
+        title: 'Achievable',
+        description: 'Based on current growth trends and market conditions, targets are realistic.',
+        metrics: [
+          { label: 'Market Size', value: '$50B TAM', status: 'good' },
+          { label: 'Conversion Rate', value: '3.2%', status: 'good' },
+          { label: 'Churn Rate', value: '2.1%', status: 'excellent' }
+        ]
+      },
+      {
+        letter: 'R',
+        title: 'Relevant',
+        description: 'Revenue growth directly impacts company valuation and expansion capabilities.',
+        metrics: [
+          { label: 'Business Impact', value: 'High', status: 'excellent' },
+          { label: 'Strategic Priority', value: '#1', status: 'excellent' }
+        ]
+      },
+      {
+        letter: 'T',
+        title: 'Time-bound',
+        description: 'Achieve revenue targets within specific timeframes.',
+        metrics: [
+          { label: 'Q1 Target', value: '$1.35M', status: 'pending' },
+          { label: 'Q2 Target', value: '$1.5M', status: 'pending' },
+          { label: 'Annual Target', value: '$18M', status: 'pending' }
+        ]
+      }
+    ]
+  },
+  'customer-growth': {
+    title: 'Customer Growth',
+    description: 'Monitor customer acquisition and retention',
+    icon: peopleOutline,
+    smartGoals: [
+      {
+        letter: 'S',
+        title: 'Specific',
+        description: 'Acquire 500 new customers per quarter through digital marketing and referrals.',
+        metrics: [
+          { label: 'Acquisition Channel', value: 'Digital + Referral', status: 'good' },
+          { label: 'Target Segment', value: 'SMB + Enterprise', status: 'good' }
+        ]
+      },
+      {
+        letter: 'M',
+        title: 'Measurable',
+        description: 'Track customer acquisition cost, lifetime value, and retention rates.',
+        metrics: [
+          { label: 'Current Customers', value: '2,450', status: 'good' },
+          { label: 'CAC', value: '$125', status: 'good' },
+          { label: 'LTV', value: '$2,400', status: 'excellent' },
+          { label: 'LTV:CAC Ratio', value: '19.2:1', status: 'excellent' }
+        ]
+      },
+      {
+        letter: 'A',
+        title: 'Achievable',
+        description: 'Growth targets align with marketing budget and team capacity.',
+        metrics: [
+          { label: 'Marketing Budget', value: '$200K/month', status: 'good' },
+          { label: 'Sales Team', value: '12 reps', status: 'good' },
+          { label: 'Lead Pipeline', value: '1,200/month', status: 'excellent' }
+        ]
+      },
+      {
+        letter: 'R',
+        title: 'Relevant',
+        description: 'Customer growth drives revenue and market share expansion.',
+        metrics: [
+          { label: 'Revenue Impact', value: 'Direct', status: 'excellent' },
+          { label: 'Market Share', value: '2.3%', status: 'good' }
+        ]
+      },
+      {
+        letter: 'T',
+        title: 'Time-bound',
+        description: 'Achieve customer milestones by specific dates.',
+        metrics: [
+          { label: 'Q1 Goal', value: '2,950 customers', status: 'pending' },
+          { label: 'Q2 Goal', value: '3,450 customers', status: 'pending' },
+          { label: 'Annual Goal', value: '4,500 customers', status: 'pending' }
+        ]
+      }
+    ]
+  },
+  'code-quality': {
+    title: 'Code Quality Metrics',
+    description: 'Maintain high code standards across teams',
+    icon: shieldCheckmarkOutline,
+    smartGoals: [
+      {
+        letter: 'S',
+        title: 'Specific',
+        description: 'Achieve 95% code coverage and reduce technical debt by 30%.',
+        metrics: [
+          { label: 'Coverage Target', value: '95%', status: 'pending' },
+          { label: 'Debt Reduction', value: '30%', status: 'pending' }
+        ]
+      },
+      {
+        letter: 'M',
+        title: 'Measurable',
+        description: 'Track code quality metrics with automated tools.',
+        metrics: [
+          { label: 'Current Coverage', value: '94%', status: 'excellent' },
+          { label: 'Code Smells', value: '23', status: 'warning' },
+          { label: 'Security Issues', value: '2', status: 'warning' },
+          { label: 'Maintainability', value: 'A', status: 'excellent' }
+        ]
+      },
+      {
+        letter: 'A',
+        title: 'Achievable',
+        description: 'Targets are realistic with current team skills and tools.',
+        metrics: [
+          { label: 'Team Experience', value: 'Senior', status: 'excellent' },
+          { label: 'Tools Available', value: 'SonarQube, ESLint', status: 'good' },
+          { label: 'Time Allocation', value: '20% refactoring', status: 'good' }
+        ]
+      },
+      {
+        letter: 'R',
+        title: 'Relevant',
+        description: 'Code quality directly impacts product reliability and development speed.',
+        metrics: [
+          { label: 'Bug Reduction', value: '40%', status: 'excellent' },
+          { label: 'Dev Velocity', value: '+15%', status: 'good' }
+        ]
+      },
+      {
+        letter: 'T',
+        title: 'Time-bound',
+        description: 'Achieve quality targets within 6 months.',
+        metrics: [
+          { label: 'Month 3 Target', value: '94.5% coverage', status: 'pending' },
+          { label: 'Month 6 Target', value: '95% coverage', status: 'pending' },
+          { label: 'Debt Reduction', value: 'Q2 2024', status: 'pending' }
+        ]
+      }
+    ]
+  }
+  // Add more chart data as needed...
+}
+
+const openSMARTModal = (chartId: string) => {
+  selectedChart.value = chartData[chartId]
+  if (selectedChart.value) {
+    smartModalOpen.value = true
+  }
+}
+
+const exportSMARTReport = () => {
+  console.log('Exporting SMART report for:', selectedChart.value?.title)
+  // Add export functionality
+}
+
+const setSMARTReminder = () => {
+  console.log('Setting reminder for:', selectedChart.value?.title)
+  // Add reminder functionality
 }
 </script>
 
@@ -775,6 +1023,189 @@ ion-content {
   
   .charts-grid {
     height: auto;
+  }
+}
+
+/* SMART Modal Styles */
+.smart-modal-content {
+  --background: #121212;
+  --overflow: auto;
+}
+
+.smart-container {
+  padding: 20px;
+  min-height: 100%;
+  padding-bottom: 40px; /* Extra padding at bottom */
+}
+
+.smart-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.smart-icon {
+  font-size: 2rem;
+  color: var(--ion-color-primary);
+}
+
+.smart-title h2 {
+  margin: 0 0 4px 0;
+  color: var(--ion-color-primary);
+  font-size: 1.5rem;
+}
+
+.smart-title p {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+.smart-goals {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 32px; /* Increased margin */
+}
+
+.smart-goal {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  background: rgba(30, 41, 59, 0.5);
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.goal-letter {
+  width: 40px;
+  height: 40px;
+  background: var(--ion-color-primary);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.goal-content {
+  flex: 1;
+}
+
+.goal-content h3 {
+  margin: 0 0 8px 0;
+  color: white;
+  font-size: 1.1rem;
+}
+
+.goal-content p {
+  margin: 0 0 12px 0;
+  color: #94a3b8;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.goal-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.metric {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.metric-label {
+  color: #94a3b8;
+  font-size: 0.8rem;
+}
+
+.metric-value {
+  font-weight: 600;
+  font-size: 0.8rem;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.metric-value.excellent {
+  background: rgba(34, 197, 94, 0.2);
+  color: #4ade80;
+}
+
+.metric-value.good {
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+}
+
+.metric-value.warning {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+}
+
+.metric-value.pending {
+  background: rgba(148, 163, 184, 0.2);
+  color: #94a3b8;
+}
+
+.smart-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px; /* Extra margin at bottom */
+}
+
+/* Ensure modal takes full height and is scrollable */
+ion-modal {
+  --height: 100%;
+  --max-height: 100%;
+}
+
+ion-modal ion-content {
+  --overflow: auto;
+  height: 100%;
+}
+
+/* Chart hover effect */
+.chart-content {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.chart-content:hover {
+  transform: scale(1.02);
+  background: rgba(6, 182, 212, 0.05);
+  border-radius: 8px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .smart-goal {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .goal-letter {
+    align-self: center;
+  }
+  
+  .metric {
+    flex-direction: column;
+    gap: 4px;
+    text-align: center;
+  }
+  
+  .smart-container {
+    padding: 16px;
+    padding-bottom: 60px; /* More padding on mobile */
   }
 }
 </style>
